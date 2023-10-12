@@ -1,7 +1,26 @@
+from airflow import DAG
+from airflow.models.connection import Connection
+from time import time_ns
+from datetime import datetime
+import os
 import pendulum
 import logging
 
 from airflow.decorators import dag, task
+
+conn = Connection(
+    conn_id="aws_demo",
+    conn_type="aws",
+    extra={
+        "config_kwargs": {
+            "signature_version": "unsigned",
+        },
+    },
+)
+
+env_key = f"AIRFLOW_CONN_{conn.conn_id.upper()}"
+conn_uri = conn.get_uri()
+os.environ[env_key] = conn_uri
 
 @dag(
     # schedule to run daily
